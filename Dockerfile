@@ -1,10 +1,10 @@
-FROM localhost/base:v0.7.0 as BUILD
+FROM debian:buster-slim as BUILD
 
 # Setup maven, we don't use https://hub.docker.com/_/maven/ as it declare .m2 as volume, we loose all mvn cache
 # We can alternatively do as proposed by https://github.com/carlossg/docker-maven#packaging-a-local-repository-with-the-image
 # this was meant to make the image smaller, but we use multi-stage build so we don't care
 ENV DEBIAN_FRONTEND=noninteractive
-RUN apt-get update && apt-get install -y curl tar bash && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y curl tar bash default-jre && rm -rf /var/lib/apt/lists/*
 
 ARG MAVEN_VERSION=3.6.3
 ARG USER_HOME_DIR="/root"
@@ -43,7 +43,7 @@ RUN mvn package -pl eclair-node -am -DskipTests -Dgit.commit.id=notag -Dgit.comm
 # It might be good idea to run the tests here, so that the docker build fail if the code is bugged
 
 # We currently use a debian image for runtime because of some jni-related issue with sqlite
-FROM localhost/base:v0.7.0
+FROM BUILD
 WORKDIR /app
 
 # install jq for eclair-cli
