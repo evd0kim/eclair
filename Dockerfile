@@ -43,11 +43,11 @@ RUN mvn package -pl eclair-node -am -DskipTests -Dgit.commit.id=notag -Dgit.comm
 # It might be good idea to run the tests here, so that the docker build fail if the code is bugged
 
 # We currently use a debian image for runtime because of some jni-related issue with sqlite
-FROM BUILD
+FROM debian:buster-slim
 WORKDIR /app
 
 # install jq for eclair-cli
-RUN apt-get update && apt-get install -y bash jq curl unzip
+RUN apt-get update && apt-get install -y bash jq curl unzip default-jre && rm -rf /var/lib/apt/lists/*
 
 # copy and install eclair-cli executable
 COPY --from=BUILD /usr/src/eclair-core/eclair-cli .
